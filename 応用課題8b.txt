@@ -12,6 +12,9 @@
   scope :created_5day_ago, -> { where(created_at: 5.day.ago.all_day) } # 5日前
   scope :created_6day_ago, -> { where(created_at: 6.day.ago.all_day) } # 6日前
   
+
+
+
 2⃣
 user(controller)コントローラに追記
 
@@ -24,6 +27,9 @@ user(controller)コントローラに追記
     @this_week_book = @books.created_this_week
     @last_week_book = @books.created_last_week
   end
+
+
+
 
 3⃣
 user(viwes)
