@@ -1,0 +1,57 @@
+1⃣
+users_controller
+
+  def daily_posts 
+    user = User.find(params[:user_id])
+    @books = user.books.where(created_at: params[:created_at].to_date.all_day)
+    render :daily_posts_form
+  end
+
+2⃣
+routes.rb
+
+  resources :users, only: [:index,:show,:edit,:update] do
+    resource :relationships, only: [:create, :destroy]
+  	get 'followings' => 'relationships#followings', as: 'followings'
+  	get 'followers' => 'relationships#followers', as: 'followers'
+  	get "daily_posts" => "users#daily_posts"
+  end
+
+3⃣
+users(viwes) show
+
+<%= render 'books/index',books: @books %>
+　　↓
+  <%= render 'daily_posts_form', user: @user %>
+
+4⃣
+user(views) 
+_daily_posts_form.html.erb
+↓↓
+<div class="my-3">
+  <%= form_with url: user_daily_posts_path(user), method: :get, class: "row justify-content-center", local: false do |f| %>
+    <div class="col-auto">
+      <%= f.date_field :created_at, class: "form-control" %>
+    </div>
+    <div class="col-auto">
+      <%= f.submit "検索" , class: "btn btn-primary"%>
+    </div>
+  <% end %>
+</div>
+
+<div class="daily_posts_table">
+</div>
+
+5⃣
+user(veiws)
+daily_posts_form.js.erb
+
+$('.daily_posts_table').html(`
+  <h2>検索結果</h2>
+  <div class="card" >
+    <div class="card-header">投稿数</div>
+    <div class="card-body">
+      <%= j( @books.count ) %>
+    </div>
+  </div>
+`)

@@ -1,0 +1,29 @@
+ページの閲覧数をカウントし、投稿一覧、投稿詳細に表示させる
+
+1⃣
+rails g model ViewCount book_id:integer, user_id:integer
+
+2⃣
+user.rb
+ has_many :view_counts, dependent: :destroy
+
+book.rb
+ has_many :view_counts, dependent: :destroy
+
+view_count.rb
+ belongs_to :user
+ belongs_to :book
+
+3⃣
+ コントローラーへ追記
+<books_controller>
+  def show
+    @book_detail = Book.find(params[:id])
+    unless ViewCount.find_by(user_id: current_user.id, book_id: @book_detail.id)
+      current_user.view_counts.create(book_id: @book_detail.id)
+    end
+  end
+
+4⃣
+<show.html.erb>
+<p class="view-count">👀数: <%= @book_detail.view_counts.count %></p>

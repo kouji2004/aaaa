@@ -1,0 +1,30 @@
+いいねの多い順にユーザーを表示する
+1⃣アソシエーションを設定する
+＜アソシエーションを行う＞
+
+Userモデル
+has_many :books, dependent: :destroy
+has_many :favorites, dependent: :destroy
+
+Bookモデル
+belongs_to :user
+has_many :favorites, dependent: :destroy
+has_many :favorited_users, through: :favorites, source: :user
+
+Favoriteモデル
+belongs_to :user
+belongs_to :book
+
+
+2⃣コントローラーに記述
+＜Bookコントローラーに記述する＞
+
+  def index
+    to  = Time.current.at_end_of_day
+    from  = (to - 6.day).at_beginning_of_day
+    @books = Book.all.sort {|a,b|
+      b.favorites.where(created_at: from...to).size <=>
+      a.favorites.where(created_at: from...to).size
+  }
+    @book = Book.new
+  end

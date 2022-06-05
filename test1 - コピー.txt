@@ -1,0 +1,33 @@
+9-c （app/controller/event_notices_controller.rb)(app/mailers/event_mailer.rb)が分からない
+
+
+
+1⃣scopの意味がわからない
+2⃣手順3の_book_index.html.erbとありますが、これは部分テンプレートの中に部分テンプレートを作成するという理解であってますでしょうか？
+
+
+roup_id])改行@group.users << current_user　という記述と同じ意味ですか?group_usersにcurrent_userを追加しているという意味と理解してます。)
+
+７b scopeの意味が理解できていない
+
+
+test1b 手順3の_book_index.html.erbとありますが、これは部分テンプレートの中に部分テンプレートを作成するという理解であってますでしょうか？
+
+
+9-c （app/controller/event_notices_controller.rb)(app/mailers/event_mailer.rb)が分からない
+
+4　ー＞　<%= render 'daily_posts_form', user: @user %>
+
+
+
+7-c (app/views/users/show.html.erbの　<%= 
+8-c (app/controllers/group_users_controller.rbの group_user = current_user.group_users.new(group_id: params[:group_id]) の意味がわからない.別参考サイトにあった　@group = Group.find(params[:group_id])改行@group.users << current_user　という記述と同じ意味ですか?group_usersにcurrent_userを追加しているという意味と理解してます。)
+
+
+
+1⃣７b scopeの意味が理解できていない
+2⃣app/controller/event_notices_controller.rb)(app/mailers/event_mailer.rb)　の記述箇所が言語化できない
+3⃣test2b ドライ
+4⃣8-c(app/controllers/group_users_controller.rbの group_user = current_user.group_users.new(group_id: params[:group_id]) の意味がわからない.別参考サイトにあった　@group = Group.find(params[:group_id])改行@group.users << current_user　という記述と同じ意味ですか?group_usersにcurrent_userを追加しているという意味と理解してます。)
+
+

@@ -1,0 +1,127 @@
+お互いがフォロしていたらchatができる機能を実装
+1⃣あああああああ
+以下のモデルを作成する
+$ rails g model Room
+$ rails g model Chat user_id:integer room_id:integer message:text
+$ rails g model UserRoom user_id:integer room_id:integer
+
+$ rails db:migrate
+
+2⃣あああああああ
+アソシエーションを行う
+User
+  has_many :user_rooms
+  has_many :chats
+  has_many :rooms, through: :user_rooms
+
+User_room
+  belongs_to :user
+  belongs_to :room
+
+Room
+  has_many :user_rooms
+  has_many :chats
+
+Chat
+  belongs_to :user
+  belongs_to :room
+
+  validates :message, presence: true, length: { maximum: 140 }
+
+3⃣あああああああああああ
+
+rails g controller chats show
+
+4⃣ああああああああああ
+routes.rb
+
+  get '/search', to: 'searches#search'
+  
+  resources :chats, only: [:show, :create]
+
+5⃣あああああああああ
+<ChatsController>
+class ChatsController < ApplicationController
+  before_action :reject_non_related, only: [:show]
+  def show
+    @user = User.find(params[:id])
+    rooms = current_user.user_rooms.pluck(:room_id)
+    user_rooms = UserRoom.find_by(user_id: @user.id, room_id: rooms)
+
+    unless user_rooms.nil?
+      @room = user_rooms.room
+    else
+      @room = Room.new
+      @room.save
+      UserRoom.create(user_id: current_user.id, room_id: @room.id)
+      UserRoom.create(user_id: @user.id, room_id: @room.id)
+    end
+    @chats = @room.chats
+    @chat = Chat.new(room_id: @room.id)
+  end
+  def create
+    @chat = current_user.chats.new(chat_params)
+    render :validater unless @chat.save
+  end
+
+  private
+  def chat_params
+    params.require(:chat).permit(:message, :room_id)
+  end
+
+  def reject_non_related
+    user = User.find(params[:id])
+    unless current_user.following?(user) && user.following?(current_user)
+      redirect_to books_path
+    end
+  end
+end
+
+6⃣あああああああああああああ
+<app/app/views/chats/show.html.erb>
+<h1 id="room" data-room="<%= @room.id %>" data-user="<%= current_user.id %>"><%= @user.name %> さんとのチャット</h1>
+
+<div class="message" style="width: 400px;">
+  <% @chats.each do |chat| %>
+    <% if chat.user_id == current_user.id %>
+      <p style="text-align: right;"><%= chat.message %></p>
+    <% else %>
+      <p style="text-align: left;"><%= chat.message %></p>
+    <% end %>
+  <% end %>
+</div>
+
+<div class="errors">
+  <%= render "layouts/errors", obj: @chat %>
+</div>
+
+<%= form_with model: @chat, data: {remote: true} do |f| %>
+  <%= f.text_field :message %>
+  <%= f.hidden_field :room_id %>
+<% end %>
+
+7⃣
+<user_infoの一番したに記述する>
+  <% if current_user != user && current_user.following?(user) && user.following?(current_user) %>
+    <%= link_to 'chatを始める', chat_path(user.id), class: "ml-3" %>
+  <% end %>
+</div>
+
+8⃣
+<UserController>
+def show
+  @user = User.find(params[:id])
+end
+
+9⃣
+chats(viwes)の配下に以下を追加する
+create.js.erb
+validater.js.erb
+
+🔟
+<create.js.erb>
+$('.message').append("<p style='text-align: right;'><%= @chat.message %></p>");
+$('input[type=text]').val("")
+
+<validater.js.erb>
+$('.errors').html("<%= j(render 'layouts/errors', obj: @chat) %>");
