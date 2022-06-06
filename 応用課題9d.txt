@@ -1,0 +1,261 @@
+１⃣モデルの作成
+$rails g model book_tag
+$rails g model tag
+
+
+
+
+
+
+　＜テーブルの作成＞
+１⃣ー１tegモデルに→t.string :nameを追加する
+　　　　　　　　　↓
+
+class CreateTags < ActiveRecord::Migration[6.1]
+  def change
+    create_table :tags do |t|
+      t.string :name
+
+      t.timestamps
+    end
+  end
+end
+
+
+１⃣ー２　＜book_tagモデルに t.integer :book_id  t.integer :tag_idを追加＞
+　　　　　　↓
+
+
+class CreateBookTags < ActiveRecord::Migration[6.1]
+  def change
+    create_table :book_tags do |t|
+      t.integer :book_id
+      t.integer :tag_id
+
+      t.timestamps
+    end
+  end
+end
+
+
+
+
+
+２⃣アソシエーションを行う
+
+
+２⃣ー１Bookモデル
+
+  has_many :book_tags, dependent: :destroy
+  has_many :tags, through: :book_tags
+
+
+  def save_tags(savebook_tags)
+    # 現在のユーザーの持っているskillを引っ張ってきている
+    current_tags = self.tags.pluck(:name) unless self.tags.nil?
+    # 今bookが持っているタグと今回保存されたものの差をすでにあるタグとする。古いタグは消す。
+    old_tags = current_tags - savebook_tags
+    # 今回保存されたものと現在の差を新しいタグとする。新しいタグは保存
+    new_tags = savebook_tags - current_tags
+		
+    # Destroy old taggings:
+    old_tags.each do |old_name|
+      self.tags.delete Tag.find_by(name:old_name)
+    end
+		
+    # Create new taggings:
+    new_tags.each do |new_name|
+      book_tag = Tag.find_or_create_by(name:new_name)
+      # 配列に保存
+      self.tags << book_tag
+    end
+  end
+
+
+２⃣ー２Tagモデル
+
+ has_many :book_tags, dependent: :destroy, foreign_key: 'tag_id'
+  has_many :books, through: :book_tags
+  
+  scope :merge_books, -> (tags){ }
+  
+  def self.search_books_for(content, method)
+    
+    if method == 'perfect'
+      tags = Tag.where(name: content)
+    elsif method == 'forward'
+      tags = Tag.where('name LIKE ?', content + '%')
+    elsif method == 'backward'
+      tags = Tag.where('name LIKE ?', '%' + content)
+    else
+      tags = Tag.where('name LIKE ?', '%' + content + '%')
+    end
+    
+    return tags.inject(init = []) {|result, tag| result + tag.books}
+    
+  end
+
+
+３⃣ー３　BookTagモデル
+
+  belongs_to :book
+  belongs_to :tag
+
+
+
+
+
+
+
+４⃣コントローラのCreateアクションを編集
+
+
+  def create
+    @book = Book.new(book_params)
+    @book.user_id = current_user.id
+    tag_list = params[:book][:tag_name].split(',')
+    if @book.save
+      @book.save_tags(tag_list)
+      redirect_to book_path(@book), notice: "You have created book successfully."
+    else
+      @books = Book.all
+      render 'index'
+    end
+  end
+
+
+
+
+
+
+
+
+５⃣Viewsの編集
+
+
+５⃣ー１app/views/books/_form.html.erb　　！！コメントアウトを解除する！！
+
+
+<%= form_with model:book,local:true do |f| %>
+  <div class="form-group">
+    <%= f.label :title %>
+    <%= f.text_field :title, class: 'form-control book_title' %>
+  </div>
+  <div class="form-group">
+    <%= f.label :opinion %>
+    <%= f.text_area :body, class: 'form-control book_body' %>
+  </div>
+  
+  <%
+=begin%>
+ <div class="form-group">
+    <%= f.label "Tag" %>
+    <%= f.text_field :tag_name, class: 'form-control book_tag_name' %>
+  </div> 
+<%
+=end%>
+  
+  <% if book.id === nil %>
+    <div class="form-group" id="star">
+      <%= f.label :rate %>
+      <%= f.hidden_field :rate, id: :review_star, class:'form-control' %>
+    </div>
+    
+    <script>
+    $(document).on('turbolinks:load', function() {
+      $('#star').empty();
+      $('#star').raty({
+        size     : 36,
+        starOff:  '<%= asset_path('star-off.png') %>',
+        starOn : '<%= asset_path('star-on.png') %>',
+        starHalf: '<%= asset_path('star-half.png') %>',
+        scoreName: 'book[rate]',
+        half: true,
+      });
+    })
+    </script>
+  <% else %>
+    <%= render "static_rate", book: book %>
+  <% end %>
+  
+  <div class="form-group">
+    <%= f.submit class: 'btn btn-success' %>
+  </div>
+<% end %>
+
+
+
+５⃣ー２　app/views/books/show.html.erb　　！！コメントアウトを解除する！！
+
+<div class='container'>
+  <div class='row'>
+    <div class='col-md-3'>
+      <h2>User info</h2>
+      <%= render 'users/info', user: @book.user %>
+      <h2 class="mt-3">New book</h2>
+      <%= render 'form', book: Book.new %>
+    </div>
+    <div class='col-md-8 offset-md-1'>
+  		<h2>Book detail</h2>
+  		<table class='table'>
+  		  <tr>
+          <td><%= link_to(@book.user) do %>
+            <%= image_tag @book.user.get_profile_image, size:"100x100" %><br>
+            <%= @book.user.name %>
+            <% end %>
+          </td>
+          <td><%= link_to @book.title, @book %></td>
+          <td><%= @book.body %></td>
+          <%
+=begin%>
+ <td>
+            <% @book.tags.each do |tag| %>
+              <li style="list-style: none;"><%= link_to tag.name, search_path(content: tag.name, model:"tag", method: "perfect") %></li>
+            <% end %>
+          </td> 
+<%
+=end%>
+          <td class=<%= "favorite-" + @book.id.to_s %> >
+            <%= render "favorites/btn", book: @book %>
+          </td>
+          <td class="book-comments-counter">
+            <%= render "book_comments/counter", book: @book %>
+          </td>
+          <td><%= render "static_rate", book: @book %></td>
+          <% if @book.user == current_user %>
+            <td><%= link_to 'Edit', edit_book_path(@book), class: "btn btn-sm btn-success edit_book_#{@book.id}" %></td>
+            <td><%= link_to 'Destroy', @book, method: :delete, data: { confirm: '本当に消しますか？' }, class: "btn btn-sm btn-danger destroy_book_#{@book.id}" %></td>
+          <% end %>
+        </tr>
+      </table>
+      
+      <div class="book-comments-index">
+        <%= render "book_comments/index", book: @book %>
+      </div>
+      
+      <%= render "book_comments/form", book: @book, book_comment: @book_comment %>
+      
+    </div>
+  </div>
+</div>
+
+
+５⃣ー３ app/views/_tag_form.html.erbを作成する
+　　　　　　　　↓
+　　　_tag_form.html.erb
+　　　　　　　　↓
+
+<% if user_signed_in? %>
+  <%= form_with url: search_path, method: :get, local: true do |f| %>
+    <%= f.text_field :content %>
+    <%= f.hidden_field :model, :value => "tag"  %>
+    <%= f.hidden_field :method, :value => "perfect" %>
+    <%= f.submit 'タグ検索' %>
+  <% end %>
+<% end %>
+
+　　
+
+
+
+
