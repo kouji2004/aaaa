@@ -107,8 +107,9 @@ end
 
 
 
-４⃣コントローラのCreateアクションを編集
+４⃣コントローラのアクションを編集
 
+４⃣ー１app/controller/books
 
   def create
     @book = Book.new(book_params)
@@ -122,6 +123,26 @@ end
       render 'index'
     end
   end
+
+４⃣ー２　app/controller/SearchesController.rb　！！コメントアウトを解除！！
+
+
+class SearchesController < ApplicationController
+  before_action :authenticate_user!
+
+	def search
+		@model = params[:model]
+		@content = params[:content]
+		@method = params[:method]
+		if @model == 'user'
+			@records = User.search_for(@content, @method)
+		elsif @model == 'book'
+			@records = Book.search_for(@content, @method)
+		# elsif @model == 'tag'
+		# 	@records = Tag.search_books_for(@content, @method)
+		end
+	end
+end
 
 
 
@@ -255,7 +276,18 @@ end
 <% end %>
 
 　　
+５⃣ー４ app/views/searches/search.html.erb ！！！！コメントアウトを解除！！！
 
-
+<% if @model == 'user' %>
+	<h3>Users search for "<%= @content %>"</h3>
+  <%= render 'users/index', users: @records %>
+<%
+=begin%>
+ <% elsif @model == 'book' || @model == 'tag' %> 
+<%
+=end%>
+	<h3>Books search for "<%= @content %>"</h3>
+  <%= render 'books/index', books: @records %>
+<% end %>
 
 
