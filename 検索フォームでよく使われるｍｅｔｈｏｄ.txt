@@ -1,0 +1,90 @@
+
+
+*の部分には検索したいカラム名が入ります。
+
+<名前やテキスト内容検索でよく使われる>
+*_eq	完全に一致するとき
+*_not_eq	完全に一致しないとき
+*_matches	一部が一致するとき
+*_does_not_match	一部が一致しないとき
+*_matches_any	いずれかに一致するとき
+*_matches_all	全てに一致するとき
+*_does_not_match_any	いずれにも一致しないとき
+*_does_not_match_all	全てに一致しないとき
+
+
+例
+<%= search_form_for @q, url: search_users_path do |f| %>
+  <%= f.label :name_eq, 'ユーザー名' %>
+  <%= f.search_field :name_eq %>
+  <%= f.submit '検索' %>
+<% end %>
+
+
+<年齢検索でよく使われる>
+
+*_lt	〜未満のとき
+*_lteq	〜以下のとき
+*_gt	〜より大きいとき
+*_gteq	〜以上のとき
+
+例
+<%= search_form_for @q, url: search_users_path do |f| %>
+  <%= f.radio_button :age_lteq, '' %>指定しない
+  <%= f.radio_button :age_lteq, '10' %>10歳以下
+  <%= f.radio_button :age_lteq, '20' %>20歳以下
+  <%= f.radio_button :age_lteq, '30' %>30歳以下
+  <%= f.radio_button :age_lteq, '40' %>40歳以下
+  <%= f.radio_button :age_gteq, '50' %>50歳以上
+  <%= f.submit '検索' %>
+<% end %>
+
+
+
+
+*_present	nullでも空でもないとき
+*_blank	nullまたは空のとき
+*_null	nullのとき
+*_not_null	nullではないとき
+
+
+
+*_in	配列内の値と一致するとき
+*_not_in	配列内のどの値とも一致しないとき
+*_lt_any	いずれかの値より少ないとき
+*_lteq_any	いずれかの値以下のとき
+*_gt_any	いずれかの値より大きいとき
+*_gteq_any	いずれかの値以上のとき
+*_lt_all	全ての値より少ないとき
+*_lteq_all	全ての値以下のとき
+*_gt_all	全ての値より大きいとき
+*_gteq_all	全ての値以上のとき
+*_not_eq_all	指定した値ではないとき
+
+
+*_start	前方一致のとき
+*_not_start	前方不一致のとき
+*_start_any	〜のいずれかで始まるとき
+*_start_all	〜の全てから始まるとき
+*_not_start_any	〜のいずれかで始まらないとき
+*_not_start_all	〜の全てから始まらないとき
+*_end	後方一致のとき
+*_not_end	後方不一致のとき
+*_end_any	〜のいずれかで終わるとき
+*_end_all	〜の全てで終わるとき
+*_not_end_any	〜のいずれかで終わらないとき
+*_not_end_all	〜の全てで終わらないとき
+*_cont	〜の部分が一致するとき
+*_cont_any	〜のいずれかが含まれているとき
+*_cont_all	〜の全てが含まれているとき
+*_not_cont	〜に部分が一致しないとき
+*_not_cont_any	〜のいずれかが含まれないとき
+*_not_cont_all	〜の全てが含まれないとき
+*_i_cont	大文字と小文字を区別しない値が含まれるとき
+*_i_cont_any	大文字と小文字を区別しないいずれかの値が含まれるとき
+*_i_cont_all	大文字と小文字を区別しない全ての値が含まれるとき
+*_not_i_cont	大文字と小文字を区別しない値が含まれないとき
+*_not_i_cont_any	大文字と小文字を区別しないいずれかの値が含まれないとき
+*_not_i_cont_all	大文字と小文字を区別しない全ての値が含まれないとき
+*_true	真偽値のレコードを取得するとき
+*_false	真偽値と反対のレコードを取得するとき
