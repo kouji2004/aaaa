@@ -109,7 +109,24 @@ end
 
 ４⃣コントローラのアクションを編集
 
-４⃣ー１app/controller/books
+４⃣ー１　app/controller/booksの　　！！！！！indexのコメント箇所を削除する！！！！！！
+
+  def index
+    @books = Book.all.order(params[:sort])
+    @book = Book.new
+    # if params[:latest]
+    #   @books = Book.latest
+    # elsif params[:old]
+    #   @books = Book.old
+    # elsif params[:star_count]
+    #   @books = Book.star_count
+    # else
+    #     @books = Book.all
+    # end
+  end
+
+
+４⃣ー２app/controller/books
 
   def create
     @book = Book.new(book_params)
@@ -291,3 +308,10 @@ end
 <% end %>
 
 
+５⃣ー５
+<h2>Books</h2>　！！！！！コメントアウトを解除する！！！
+      <p>
+        <%= link_to "新しい順", books_path(sort: 'created_at DESC') %>
+        |<%= link_to '古い順', books_path(old: "true") %>
+        <!--| <%= link_to "評価の高い順", books_path(sort: 'rate DESC') %>-->
+      </p>
