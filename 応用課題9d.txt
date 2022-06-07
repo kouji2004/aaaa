@@ -315,3 +315,19 @@ end
         |<%= link_to '古い順', books_path(old: "true") %>
         <!--| <%= link_to "評価の高い順", books_path(sort: 'rate DESC') %>-->
       </p>
+
+
+
+５⃣ー６　app/views/application　！！！コメントアウトを解除する！！！
+  <body>
+    <%= render 'layouts/header' %>
+      <main>
+        <p id="notice"><%= notice %></p>
+        <div class="d-flex justify-content-center mb-2">
+          <%= render 'searches/form' %>
+          <!--<%= render 'searches/tag_form' %>-->
+        </div>
+        <%= yield %>
+      </main>
+    <%= render 'layouts/footer' %>
+  </body>
